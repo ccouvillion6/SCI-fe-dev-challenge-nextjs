@@ -36,9 +36,12 @@ export default function Dropdown({onSelect}: DropdownProps) {
     return (
         <div>
             {loading && <p>Loading options...</p>}
-            {error && <p>Error: {error}</p>}
+            {error && <p className="text-red-500">Error: {error}</p>}
             {!loading && !error && (
-                <select onChange={(e) => onSelect(e.target.value)}>
+                <select 
+                 onChange={(e) => onSelect(e.target.value)}
+                    className="w-full p-2 border rounded text-black bg-white"
+                >
                     <option value="">Select HP</option>
                     {options.map((option) => (
                         <option key={option} value={option}>

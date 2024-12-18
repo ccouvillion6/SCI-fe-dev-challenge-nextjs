@@ -1,29 +1,29 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import Card from './Card';
+import CardSkeleton from './CardSkeleton';
 
-type CardData = {
-    set: string;
-    number: string;
-    name: string;
-    type: string;
-    aspects: string[];
-    traits: string[];
-    arenas: string[];
-    cost: number;
-    power: number;
-    hp: number;
-    fronttext: string;
-    doublesided: boolean;
-    rarity: string;
-    unique: boolean;
-    artist: string;
-    varianttype: string;
-    marketprice: string;
-    foilprice: string;
-    frontArt: string;
-
-
+type CardData = {   
+    Set: string;
+    Number: string;
+    Name: string;
+    Type: string;
+    Aspects: string[];
+    Traits: string[];
+    Arenas: string[];
+    Cost: number;
+    Power: number;
+    HP: number;
+    FrontText: string;
+    DoubleSided: boolean;
+    Rarity: string;
+    Unique: boolean;
+    Artist: string;
+    VariantType: string;
+    MarketPrice: string;
+    FoilPrice: string;
+    FrontArt: string;
+    id: string;
 };
 
 type CardListProps = {
@@ -41,7 +41,8 @@ export default function CardList({ hp }: CardListProps) {
     const [cards, setCards] = useState<CardData[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
-    const [sortKey, setSortKey] = useState<keyof CardData>('name');
+    const [sortKey, setSortKey] = useState<keyof CardData>('Name');
+    const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
 
     useEffect(() => {
         if (!hp) return;
@@ -50,34 +51,34 @@ export default function CardList({ hp }: CardListProps) {
 
         async function fetchCards() {
             try {
-                const res = await fetch(`/api/search?hp=${hp}`);
+                const res = await fetch(`/api/search?hp=${hp}&order=${sortKey.toLowerCase()}&direction=${sortDirection}`);
                 if (!res.ok) throw new Error('Failed to fetch cards');
                 const data = await res.json();
                 console.log("|-o-| CL: data", data);
 
                 const formattedCards = Array.isArray(data.data)
-                    ? data.data.map((card: any) => ({
-                        set: card.Set,
-                        number: card.Number,
-                        name: card.Name,
-                        type: card.Type,
-                        aspects: card.Aspects,
-                        traits: card.Traits,
-                        arenas: card.Arenas,
-                        cost: card.Cost,
-                        power: card.Power,
-                        hp: card.HP,
-                        fronttext: card.FrontText,
-                        doublesided: card.DoubleSided,
-                        rarity: card.Rarity,
-                        unique: card.Unique,
-                        artist: card.Artist,
-                        varianttype: card.VariantType,
-                        marketprice: card.MarketPrice,
-                        foilprice: card.FoilPrice,
-                        frontArt: card.FrontArt,
+                    ? data.data.map((card: CardData) => ({
+                        Set: card.Set,
+                        Number: card.Number,
+                        Name: card.Name,
+                        Type: card.Type,
+                        Aspects: card.Aspects,
+                        Traits: card.Traits,
+                        Arenas: card.Arenas,
+                        Cost: card.Cost,
+                        Power: card.Power,
+                        HP: card.HP,
+                        FrontText: card.FrontText,
+                        DoubleSided: card.DoubleSided,
+                        Rarity: card.Rarity,
+                        Unique: card.Unique,
+                        Artist: card.Artist,
+                        VariantType: card.VariantType,
+                        MarketPrice: card.MarketPrice,
+                        FoilPrice: card.FoilPrice,
+                        FrontArt: card.FrontArt,
                         id: `${card.Set}-${card.Number}` // Creating a unique ID using set and number
-                    })).sort((a, b) => (a[sortKey] > b[sortKey] ? 1 : -1))
+                    }))
                     : [];
 
                 setCards(formattedCards);
@@ -93,28 +94,32 @@ export default function CardList({ hp }: CardListProps) {
             }
         }
         fetchCards();
-    }, [hp, sortKey]);
+    }, [hp, sortKey, sortDirection]);
 
     function sortCards(key: keyof CardData) {
-        setSortKey(key);
-        setCards([...cards].sort((a, b) => (a[key] > b[key] ? 1 : -1)));
+        if (sortKey === key) {
+            setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+        } else {
+            setSortKey(key);
+            setSortDirection('asc');
+        }
     }
     console.log("|-o-| CL: cards", cards);
 
     return (
         <section className="p-6">
             <div className="flex justify-center gap-4 mb-6">
-                <button onClick={() => sortCards('name')} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                    Sort by Name
+                <button onClick={() => sortCards('Name')} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                    Sort by Name {sortKey === 'Name' ? (sortDirection === 'asc' ? '↑' : '↓') : ''}
                 </button>
-                <button onClick={() => sortCards('set')} className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
-                    Sort by Set
+                <button onClick={() => sortCards('Set')} className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+                    Sort by Set {sortKey === 'Set' ? (sortDirection === 'asc' ? '↑' : '↓') : ''}
                 </button>
-                <button onClick={() => sortCards('cost')} className="bg-purple-500 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded">
-                    Sort by Cost
+                <button onClick={() => sortCards('Cost')} className="bg-purple-500 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded">
+                    Sort by Cost {sortKey === 'Cost' ? (sortDirection === 'asc' ? '↑' : '↓') : ''}
                 </button>
-                <button onClick={() => sortCards('power')} className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
-                    Sort by Power
+                <button onClick={() => sortCards('Power')} className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
+                    Sort by Power {sortKey === 'Power' ? (sortDirection === 'asc' ? '↑' : '↓') : ''}
                 </button>
             </div>
             {loading && <p className="text-center text-lg font-semibold">Loading cards...</p>}
@@ -123,6 +128,15 @@ export default function CardList({ hp }: CardListProps) {
                 {cards.map((card) => (
                     <Card key={card.id} {...card} />
                 ))}
+                 {loading ? (
+                    [...Array(12)].map((_, index) => (
+                        <CardSkeleton key={index} />
+                    ))
+                ) : (
+                    cards.map((card) => (
+                        <Card key={card.id} {...card} />
+                    ))
+                )}
             </div>
         </section>
     );

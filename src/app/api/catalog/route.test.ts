@@ -20,7 +20,7 @@ describe('/api/catalog GET', () => {
         const result = await response.json();
 
         expect(response.status).toBe(200);
-        expect(result.object).toBe('catalogue');
+        expect(result.object).toBe('catalog');
         expect(Array.isArray(result.data)).toBe(true);
     });
 
